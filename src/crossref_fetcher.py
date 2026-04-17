@@ -15,14 +15,21 @@ from . import config
 SOURCE_DIR = Path(__file__).parent.parent / "source"
 JATS_TAG = re.compile(r"<[^>]+>")
 
-# Pre-screen: cheap keyword filter to drop obviously unrelated articles before caching.
-# Final disease-relevance filtering is done in-session by Claude when writing the report.
-_PRESCREEN_TERMS = [
-    "breast", "mammary", "HER2", "TNBC", "CDK4", "CDK6",
-    "trastuzumab", "pertuzumab", "sacituzumab", "T-DXd", "Enhertu",
-    "ribociclib", "palbociclib", "abemaciclib", "olaparib", "talazoparib",
-    "ESR1", "imlunestrant", "elacestrant", "fulvestrant",
-    "DESTINY-Breast", "ASCENT", "NATALEE", "monarchE",
+# Pre-screen: two-tier filter.
+# Tier 1 — unambiguous BC terms: pass immediately.
+# Tier 2 — shared biomarkers (also used in gastric/lung/etc): only pass when
+#           a Tier-1 term is also present. This blocks gastroesophageal/lung
+#           articles that mention HER2/trastuzumab/T-DXd without "breast".
+_BC_DIRECT = [
+    "breast", "mammary", "TNBC", "ESR1",
+    "ribociclib", "palbociclib", "abemaciclib",   # CDK4/6 — primarily BC
+    "imlunestrant", "elacestrant",                 # SERD — BC-only
+    "DESTINY-Breast", "NATALEE", "monarchE",       # BC trial names
+]
+_SHARED_TERMS = [
+    "HER2", "trastuzumab", "pertuzumab", "T-DXd", "Enhertu",
+    "sacituzumab", "olaparib", "talazoparib", "fulvestrant",
+    "CDK4", "CDK6", "ASCENT",
 ]
 
 
@@ -83,7 +90,10 @@ def _extract_tags(text: str) -> list[str]:
 
 def _passes_prescreen(text: str) -> bool:
     tl = text.lower()
-    return any(t.lower() in tl for t in _PRESCREEN_TERMS)
+    if any(t.lower() in tl for t in _BC_DIRECT):
+        return True
+    # Shared biomarkers only count when a direct BC term is also present
+    return False
 
 
 def _pub_date(item: dict) -> Optional[str]:
