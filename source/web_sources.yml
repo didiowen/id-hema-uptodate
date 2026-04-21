@@ -57,6 +57,12 @@ sources:
     url: "https://www.cdc.gov/mmwr/rss/mmwr.xml"
     max_items: 10
 
+  - name: ASH News
+    type: google_news
+    domain: hematology.org
+    max_items: 20
+    noise_filter: "membership|about|contact|award|meeting registration"
+
 # HTTP headers used for all scraper requests
 http_headers:
   User-Agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
