@@ -47,6 +47,11 @@ sources:
     url: "http://wwwnc.cdc.gov/eid/rss/expedited.xml"
     max_items: 20
 
+  - name: EID-3
+    type: rss
+    url: "https://wwwnc.cdc.gov/eid/rss/upcoming.xml"
+    max_items: 20
+
   - name: CDC_MMWR
     type: rss
     url: "https://www.cdc.gov/mmwr/rss/mmwr.xml"
