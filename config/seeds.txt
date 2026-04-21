@@ -11,3 +11,4 @@ PeterHotez      # Dr. Peter Hotez
 kakape          # Kai Kupferschmidt (Science Magazine)
 arisatz         # Dr. Carlos del Rio
 DavidQuammen
+ASHhematology    # American Society of Hematology
