@@ -22,7 +22,15 @@ tid_eid_amr_keywords:
   - CRE
   - KPC
   - NDM
+  - MDR-PA (Multidrug-resistant Pseudomonas aeruginosa)
+  - CRAB (Carbapenem-resistant Acinetobacter baumannii)
+  - ESBL
   - Colistin resistance
+  - mcr
+  - MRSA
+  - Methicillin-resistant Staphylococcus aureus
+  - VRE
+  - Vancomycin-resistant Enterococci
   - C. auris
   - Stewardship
   
