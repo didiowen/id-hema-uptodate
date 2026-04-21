@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Breast Cancer Twitter Trend Tracker
+ID Twitter Trend Tracker
 
 Usage:
     python main.py setup          # save Twitter cookies (auth_token + ct0)
@@ -113,7 +113,7 @@ def cmd_scrape(days: int = 7):
     console.print("\n[bold]Scraping OncDaily & OncLive...[/bold]")
     results = asyncio.run(webscraper.fetch_all(days=days))
     for source, articles in results.items():
-        console.print(f"  [cyan]{source}[/cyan]: {len(articles)} breast cancer articles found")
+        console.print(f"  [cyan]{source}[/cyan]: {len(articles)} ID articles found")
         for a in articles[:5]:
             console.print(f"    • {a.title[:80]}")
             if a.url:
