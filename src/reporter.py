@@ -25,7 +25,7 @@ def build_report(days: int = 7) -> str:
     week_label = f"{week[0]}-W{week[1]:02d}"
 
     if not tweets:
-        return f"# Breast Cancer Twitter Trend Report {week_label}\n\nNo tweets found in last {days} days.\n"
+        return f"# ID Twitter Trend Report {week_label}\n\nNo tweets found in last {days} days.\n"
 
     conf_kws = config.conference_keywords()
     group_tweets: dict[str, list[dict]] = defaultdict(list)
@@ -45,7 +45,7 @@ def build_report(days: int = 7) -> str:
     active_groups = sorted(group_tweets.items(), key=lambda x: len(x[1]), reverse=True)
 
     lines = []
-    lines.append(f"# Breast Cancer Twitter Trend Report — {week_label}")
+    lines.append(f"# ID Twitter Trend Report — {week_label}")
     lines.append(f"\n> Generated {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')} | "
                  f"{len(tweets)} BC-relevant tweets | {len(accounts)} tracked accounts\n")
 
