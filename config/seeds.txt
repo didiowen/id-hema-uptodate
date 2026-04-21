@@ -1,14 +1,13 @@
-# Breast cancer KOL seed accounts
 # Format: one Twitter handle per line (no @)
-tatianapro
-DrAttai
-NancyLinCC
-Hope_Rugo
-DrEricaMayer
-OncoAlert
-DrJoyceOConnell
-drsusanlovemd
-BCRFcure
-palbociclib
-VKMouret
-Mark_Pegram
+# ID / EID / One Health KOLs
+IDSAInfo        # Infectious Diseases Society of America
+CIDRAP          # Center for Infectious Disease Research and Policy
+CDC_MMWR
+WHO
+ESCMID
+AST_IDCOP       # AST Infectious Diseases Community of Practice
+HelenBranswell  # Stat News (EID specialist)
+PeterHotez      # Dr. Peter Hotez
+kakape          # Kai Kupferschmidt (Science Magazine)
+arisatz         # Dr. Carlos del Rio
+DavidQuammen
