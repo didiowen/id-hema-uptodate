@@ -6,6 +6,19 @@ CDC_MMWR
 WHO
 ESCMID
 AST_IDCOP       # AST Infectious Diseases Community of Practice
+TransfusEd
+ECDC_EU
+UWCOHR
+CDCGlobal
+CIBMTR
+Eurosurveillanc
+ASTCC
+CIDjournal
+EIDjournal
+TheEBMT
+BMTCTN
+OneHealthCom
+gilbertjacka
 HelenBranswell  # Stat News (EID specialist)
 PeterHotez      # Dr. Peter Hotez
 kakape          # Kai Kupferschmidt (Science Magazine)
