@@ -110,7 +110,7 @@ def cmd_accounts():
 
 def cmd_scrape(days: int = 7):
     import asyncio, json
-    console.print("\n[bold]Scraping OncDaily & OncLive...[/bold]")
+    console.print("\n[bold]Scraping ID News...[/bold]")
     results = asyncio.run(webscraper.fetch_all(days=days))
     for source, articles in results.items():
         console.print(f"  [cyan]{source}[/cyan]: {len(articles)} ID articles found")
