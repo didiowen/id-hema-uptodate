@@ -9,9 +9,8 @@ import yaml
 SOURCE_DIR = Path(__file__).parent.parent / "source"
 
 
-def _load(filename: str) -> Any:
-    return yaml.safe_load((SOURCE_DIR / filename).read_text())
-
+# 顯式指定使用 utf-8 編碼讀取
+return yaml.safe_load((SOURCE_DIR / filename).read_text(encoding="utf-8"))
 
 @lru_cache(maxsize=None)
 def keywords() -> list[str]:
