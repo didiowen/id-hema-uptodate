@@ -33,7 +33,7 @@ def _load_creds() -> tuple[str, str, str, str] | None:
 
 def _save_creds(username: str, email: str, auth_token: str, ct0: str):
     CREDS_FILE.parent.mkdir(exist_ok=True)
-    CREDS_FILE.write_text(f"{username}\n{email}\n{auth_token}\n{ct0}")
+    CREDS_FILE.write_text(f"{username}\n{email}\n{auth_token}\n{ct0}", encoding="utf-8")
     CREDS_FILE.chmod(0o600)
 
 
@@ -127,7 +127,7 @@ def cmd_scrape(days: int = 7):
                 "published": a.published, "summary": a.summary, "tags": a.tags}
                for a in arts]
          for src, arts in results.items()},
-        ensure_ascii=False, indent=2
+        ensure_ascii=False, indent=2, encoding="utf-8"
     ))
     console.print(f"[green]✓ Cached → {out}[/green]")
     return results
@@ -153,7 +153,7 @@ def cmd_journals():
               "tags": a.tags, "url": a.url}
              for a in arts]
          for j, arts in results.items()},
-        ensure_ascii=False, indent=2
+        ensure_ascii=False, indent=2, encoding="utf-8"
     ))
     console.print(f"[green]✓ Cached → {out}[/green]")
     return results
