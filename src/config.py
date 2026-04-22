@@ -8,14 +8,13 @@ import yaml
 
 SOURCE_DIR = Path(__file__).parent.parent / "source"
 
-
 # 顯式指定使用 utf-8 編碼讀取
-return yaml.safe_load((SOURCE_DIR / filename).read_text(encoding="utf-8"))
-
+def _load(filename: str) -> Any:
+    return yaml.safe_load((SOURCE_DIR / filename).read_text(encoding="utf-8"))
+    
 @lru_cache(maxsize=None)
 def keywords() -> list[str]:
-    return _load("keywords.yml")["breast_cancer_keywords"]
-
+    return _load("keywords.yml")["id_hema_keywords"]
 
 @lru_cache(maxsize=None)
 def drug_groups() -> dict[str, list[str]]:
