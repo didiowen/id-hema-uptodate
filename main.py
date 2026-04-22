@@ -25,7 +25,7 @@ CREDS_FILE = Path(__file__).parent / "data" / ".creds"
 
 def _load_creds() -> tuple[str, str, str, str] | None:
     if CREDS_FILE.exists():
-        parts = CREDS_FILE.read_text().strip().splitlines()
+        parts = CREDS_FILE.read_text(encoding="utf-8").strip().splitlines()
         if len(parts) == 4:
             return parts[0], parts[1], parts[2], parts[3]
     return None
@@ -79,7 +79,7 @@ def cmd_report(days: int = 7):
     console.print(f"\n[bold]Generating report (last {days} days)...[/bold]")
     path = reporter.write_report(days=days)
     console.print(f"[green]✓ Report written → {path}[/green]")
-    lines = path.read_text().splitlines()
+    lines = path.read_text(encoding="utf-8").splitlines()
     console.print("\n[dim]Preview:[/dim]\n")
     for line in lines[:40]:
         console.print(line)
