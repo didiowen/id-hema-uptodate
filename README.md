@@ -16,21 +16,48 @@ This project is a derivative work of [`htlin222/breast-cancer-uptodate`](https:/
 
 ## 快速開始
 
+### 安裝 uv（Python 套件管理）
+
+macOS / Linux（bash / zsh）：
+
 ```bash
-# 安裝 uv（Python 套件管理）
 curl -LsSf https://astral.sh/uv/install.sh | sh
+```
 
-# 安裝相依套件
-uv sync
+Windows（PowerShell 7+）：
 
-# 執行爬蟲 + 報告（OncDaily / OncLive / ESMO）
-uv run python main.py scrape
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
 
-# 生成報告（需手動補充 OpenEvidence 段落，或直接在 Claude Code 中執行）
-uv run python main.py report
+或透過 winget / scoop / pip：
+
+```powershell
+winget install --id=astral-sh.uv -e
+scoop install uv
+pip install uv
+```
+
+安裝後請**開啟新的終端機視窗**讓 PATH 生效，然後 `uv --version` 確認。
+
+### 安裝相依套件、執行管線
+
+```bash
+uv sync                                     # 建立 .venv 並安裝相依套件
+uv run python main.py scrape                # 爬取 CIDRAP / CID / EID / MMWR / ProMED / Puscast / ASH News
+uv run python main.py journals              # 抓取 CID + Blood（CrossRef 預篩）
+uv run python main.py report                # 從 SQLite 生成 Markdown 週報
+```
+
+完整管線（含 Twitter 抓取，需先 `python main.py setup` 設定 cookie）：
+
+```bash
+uv run python main.py run
 ```
 
 報告輸出至 `reports/YYYY-Wxx.md`，push 到 `main` 後 GitHub Actions 自動發布至 Wiki。
+
+> Windows 提示：若 `uv sync` 出現「程序無法存取檔案」錯誤，代表 `.venv\Lib` 被其他程序鎖住（VS Code、執行中的 Python REPL 等）。關閉相關程序後重跑；必要時 `Remove-Item -Recurse -Force .venv` 後再 `uv sync`。
 
 ---
 
