@@ -1,12 +1,16 @@
-# Oncology Weekly Trend Reporter
+# ID + Haematology Weekly Trend Reporter
 
-自動生成腫瘤科每週治療趨勢報告，以繁體中文撰寫（英文醫學名詞不翻譯）。
+自動生成感染症 + 血液腫瘤每週趨勢報告，以繁體中文撰寫（英文醫學名詞不翻譯）。
 
-目前設定：**乳癌（Breast Cancer）**
+目前設定：**感染症 + 血液腫瘤（Infectious Disease + Haematology, HSCT 重點）**
 
-資料來源：OpenEvidence AI · OncDaily RSS · OncLive · ESMO · ClinicalTrials.gov
+資料來源：OpenEvidence AI · PubMed · CIDRAP · ProMED · CDC EID & MMWR · CID · Puscast · ASH News · ClinicalTrials.gov
 
-週報範例：[2026-W16](https://github.com/htlin222/breast-cancer-uptodate/wiki/2026-W16)
+---
+
+## 致謝 / Attribution
+
+This project is a derivative work of [`htlin222/breast-cancer-uptodate`](https://github.com/htlin222/breast-cancer-uptodate). The original framework — YAML-driven pipeline, scraper architecture (`webscraper.py`, `crossref_fetcher.py`, `fetcher.py`), report generator, and wiki-publish GitHub Action — is by **htlin222**, published with MIT intent per the upstream README. This fork repurposes the codebase for Infectious Disease and Haematology (HSCT focus). See `LICENSE` for the full notice.
 
 ---
 
@@ -57,146 +61,99 @@ uv run python main.py report
 
 ---
 
-## 切換到其他癌症 / 血液腫瘤
+## 切換至其他領域
 
-本系統設計為**癌症無關（cancer-agnostic）**，所有領域知識都集中在 `source/` 下的 YAML 檔案，切換癌種只需修改這五個檔案，**不需動任何 Python 程式碼**。
+本系統設計為**領域無關（domain-agnostic）**，所有領域知識都集中在 `source/` 下的 YAML 檔案，切換領域只需修改這幾個檔案，**不需動任何 Python 程式碼**。
+
+> 以下以「切換至兒科 ID」為示範。其他領域（純 AMR、移植 ID、HIV、TB 等）做法相同。
 
 ### 步驟 1 — 替換 `source/keywords.yml`
 
 ```yaml
-# 以瀰漫性大 B 細胞淋巴瘤（DLBCL）為例
-breast_cancer_keywords:       # ← 改這個 key 的值（key 名稱不重要）
-  - DLBCL
-  - diffuse large B-cell lymphoma
-  - rituximab
-  - R-CHOP
-  - polatuzumab vedotin
-  - Polivy
-  - CAR-T
-  - axicabtagene
-  - lisocabtagene
-  - loncastuximab
-  - tafasitamab
-  - Monjuvi
-  - bispecific
-  - epcoritamab
-  - glofitamab
-  - BCL2
-  - venetoclax
-  - PI3K delta
-  - CD19
-  - CD20
-  - POLARIX
-  - L-MIND
+tid_eid_amr_keywords:       # ← 鍵名沿用即可（不影響功能）
+  - paediatric infection
+  - neonatal sepsis
+  - RSV
+  - influenza in children
+  - measles
+  - pertussis
+  - vaccine-preventable
+  - acute otitis media
+  - bacterial meningitis
+  - hand foot mouth disease
+  - HFMD
+  - enterovirus 71
+  - EV71
 ```
 
 ### 步驟 2 — 替換 `source/drug_groups.yml`
 
-依新癌種重寫藥物分組：
+依新領域重寫藥物分組：
 
 ```yaml
 drug_groups:
-  Anti-CD20:
-    - rituximab
-    - obinutuzumab
-    - Gazyva
-  CAR-T:
-    - axicabtagene
-    - lisocabtagene
-    - axi-cel
-    - liso-cel
-    - ZUMA
-    - TRANSFORM
-  Bispecific antibodies:
-    - epcoritamab
-    - glofitamab
-    - mosunetuzumab
-  BCL2 inhibitors:
-    - venetoclax
-    - Venclyxto
+  Paediatric_Antivirals:
+    - oseltamivir
+    - zanamivir
+    - baloxavir
+    - nirsevimab          # RSV passive immunisation
+    - palivizumab
+  Paediatric_Vaccines:
+    - MMR
+    - DTaP
+    - HPV
+    - rotavirus vaccine
+    - pneumococcal conjugate
 
 conference_keywords:
-  - ASH
-  - ASCO
-  - EHA
-  - ICML
+  - ESPID
+  - PAS
+  - IDWeek
+  - WSPID
   - abstract
-  - "#ASH"
-  - "#EHA"
+  - "#ESPID"
 ```
 
 ### 步驟 3 — 替換 `source/search_queries.yml`
 
 ```yaml
 search_queries:
-  - "(DLBCL OR diffuse large B-cell) (R-CHOP OR polatuzumab OR CAR-T)"
-  - "(DLBCL) (CAR-T OR axicabtagene OR lisocabtagene OR ZUMA OR TRANSFORM)"
-  - "(lymphoma) (bispecific OR epcoritamab OR glofitamab OR mosunetuzumab)"
-  - "(DLBCL OR lymphoma) (FDA OR approval OR OS OR PFS OR abstract)"
-  - "(diffuse large B cell lymphoma) lang:en"
+  - "(RSV OR bronchiolitis) (infant OR neonate OR pediatric)"
+  - "(measles OR pertussis) outbreak"
+  - "(EV71 OR enterovirus 71 OR HFMD) (Taiwan OR Asia)"
+  - "(neonatal sepsis) (GBS OR antimicrobial)"
+  - "(ESPID OR PAS) (vaccine OR pediatric)"
 ```
 
-### 步驟 4 — 替換 `source/web_sources.yml`（選擇性）
+### 步驟 4 — 調整 `source/web_sources.yml`（選擇性）
 
-大部分來源（OncLive、ESMO）本身就涵蓋血液腫瘤，只需調整 Google News 搜尋字串：
+大部分來源（CIDRAP、EID、MMWR、ProMED）已涵蓋廣泛 ID 主題；只需在 Google News 來源加 / 改 `query` 欄位：
 
 ```yaml
 sources:
-  - name: OncDaily
-    type: rss
-    url: "https://oncodaily.com/oncolibrary/hematology/feed/"   # ← 改路徑
+  - name: AAP News
+    type: google_news
+    domain: aap.org
+    query: "infectious disease OR vaccine OR RSV OR pertussis"
     max_items: 20
-    bc_filter: false
-
-  - name: OncLive
-    type: google_news
-    domain: onclive.com
-    max_items: 30
-    noise_filter: null
-    # Google News query 自動為 "site:onclive.com breast cancer"
-    # 改為 DLBCL 需修改 webscraper.py 中的 q= 字串
-    # 或在 web_sources.yml 加 query 欄位（見下方進階說明）
-
-  - name: ASH News
-    type: google_news
-    domain: hematology.org
-    max_items: 20
-    noise_filter: "membership|about|contact|award|meeting registration"
+    noise_filter: "membership|about|contact"
 ```
 
-#### 進階：自訂 Google News 查詢字串
-
-在 `web_sources.yml` 加 `query` 欄位，`webscraper.py` 會優先使用：
-
-```yaml
-  - name: OncLive
-    type: google_news
-    domain: onclive.com
-    query: "DLBCL OR lymphoma"    # ← 覆蓋預設的 "breast cancer"
-    max_items: 30
-```
-
-並在 `src/webscraper.py` 的 `_fetch_google_news` 函式中讀取：
-
-```python
-query_term = src.get("query", "breast cancer")  # 一行改動
-q = f"site:{domain} {query_term}"
-```
+`webscraper.py` 會優先讀取 `query` 欄位，預設值為 `"infectious disease OR hematology"`。
 
 ### 步驟 5 — 替換 `config/seeds.txt`
 
 ```
-# DLBCL / Hematology KOLs
-JasonHAlderma    # Jason Westin, MD Anderson
-LorenzoCerchiett # Lorenz Cerchione
-seemaasst        # Seema Ansari
-lymphomainfo     # Lymphoma Research Foundation
-ASHhematology    # American Society of Hematology
+# Paediatric ID KOLs
+SpinalConvert    # Krow Ampofo (PIDS)
+ESPIDSociety
+PIDSociety
+nadiashaman      # Nadia Shaman (pediatric ID)
 ```
 
 ### 步驟 6 — 改報告標題（選擇性）
 
-`main.py` 的 `cmd_scrape` 與 `src/reporter.py` 中的標題字串可直接改。
+`main.py` 的 `cmd_scrape` / `cmd_journals` 與 `src/reporter.py` 中的標題字串可直接改。
 
 ---
 
@@ -226,4 +183,6 @@ ASHhematology    # American Society of Hematology
 
 ## 授權
 
-MIT
+MIT — 詳見 `LICENSE`。
+
+原始框架版權屬 [`htlin222`](https://github.com/htlin222)，本 fork 的修改部分版權屬 didiowen。上游 repo 的 README 聲明 MIT，但目前尚未在 repo 內附 `LICENSE` 檔；建議至上游提 issue 請求補上以釐清授權狀態。

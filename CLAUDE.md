@@ -1,13 +1,13 @@
-# CLAUDE.md — Breast Cancer Weekly Report
+# CLAUDE.md — ID + Haematology Weekly Report
 
 ## Project Purpose
 
-Auto-generate weekly Markdown reports on breast cancer treatment trends from:
+Auto-generate weekly Markdown reports on **Infectious Disease + Haematology (HSCT focus)** trends from:
 - OpenEvidence MCP (`mcp__openevidence__oe_ask`)
 - PubMed MCP (`mcp__claude_ai_PubMed__search_articles`)
 - ClinicalTrials.gov MCP (`mcp__claude_ai_Clinical_Trials__search_trials`)
-- CrossRef API (via `python main.py journals`)
-- Web news (OncDaily RSS, OncLive/ESMO via Google News RSS)
+- CrossRef API (via `python main.py journals`) — CID + Blood by default
+- Web news: CIDRAP AMR, CID RSS, EID (CDC), MMWR, ProMED, Puscast (MicrobeTV), ASH News
 
 ---
 
@@ -20,15 +20,15 @@ Auto-generate weekly Markdown reports on breast cancer treatment trends from:
 PREV=$(ls reports/ -t | head -1)
 echo "Previous report: $PREV"
 
-# 2. Read it fully — note every trial, drug approval, and section topic covered
-# 3. Grep key trial names to see what's already documented
-grep -E "DESTINY-Breast|ASCENT|NATALEE|monarchE|VIKTORIA|EMBER|TROPION|INAVO|SERENA" reports/$PREV
+# 2. Read it fully — note every outbreak, drug, trial, and section topic covered
+# 3. Grep key programme / trial / pathogen names to see what's already documented
+grep -E "letermovir|maribavir|cefiderocol|sulbactam-durlobactam|isavuconazole|posaconazole|HSCT|GVHD|CMV|EBV|BK virus|Candida auris|H5N1|mpox" reports/$PREV
 ```
 
 After reading the previous report, answer these before writing:
-- Which trials were already covered with final/mature data? → **skip entirely**
+- Which outbreaks / surveillance updates were already covered with the same numbers? → **skip entirely**
 - Which trials had interim data last week? → include only if new follow-up published
-- Which drug approvals were already documented? → **skip unless label expanded**
+- Which drug approvals / label expansions were already documented? → **skip unless indication / population changed**
 
 **Do NOT repeat** any finding with identical numbers. Mark new follow-up data explicitly: `[更新]` before the subsection heading, and state what changed vs last week.
 
@@ -51,7 +51,7 @@ Use ISO week number: `python3 -c "from datetime import date; d=date.today(); pri
 ### Required Sections (繁體中文)
 
 ```
-# 乳癌治療趨勢週報 — YYYY-WNN
+# 感染症 + 血液腫瘤週報 — YYYY-WNN
 
 > 生成日期：YYYY-MM-DD｜資料來源：...
 > 涵蓋期間：...
@@ -61,13 +61,13 @@ Use ISO week number: `python3 -c "from datetime import date; d=date.today(); pri
 ## 摘要
 （本週五大訊號 — bullet points, concrete numbers）
 
-## 一、HER2 靶向治療
-## 二、ADC 在 TNBC
-## 三、HR+/HER2− 內分泌治療
-## 四、CDK4/6 Inhibitor：輔助治療確立
-## 五、PARP Inhibitor 與 BRCA 族群
-## 六、免疫治療 (TNBC)
-## 七、早期乳癌：手術、放療、風險分層
+## 一、多重抗藥性革蘭氏陰性菌（CRE、CRAB、MDR-PA）
+## 二、抗黴菌治療與 IFD（aspergillosis、mucormycosis、candidiasis）
+## 三、CMV、EBV、BK virus 在 HSCT 受贈者
+## 四、HSCT 與 GVHD 相關感染
+## 五、AMR Stewardship 與新藥
+## 六、Emerging Infectious Disease（H5N1、Mpox、zoonosis、One Health）
+## 七、疫苗與預防（VZV、RSV、COVID 變異株）
 ## 八、進行中高優先試驗追蹤
 ## 九、台灣臨床情境備註
 ## 十、本週 Key Takeaways
@@ -76,10 +76,10 @@ Use ISO week number: `python3 -c "from datetime import date; d=date.today(); pri
 （OpenEvidence分類：practice-changing vs hypothesis-generating）
 
 ## 十二、媒體動態
-（OncDaily / OncLive / ESMO news table）
+（CIDRAP / ProMED / EID / MMWR / ASH News table）
 
 ## 文獻速報 — CrossRef 期刊
-（LLM-filtered JCO articles）
+（LLM-filtered CID + Blood articles）
 ```
 
 Sections without new data this week should say: `_本週無新訊號_`
@@ -88,10 +88,10 @@ Sections without new data this week should say: `_本週無新訊號_`
 
 ## Writing Style
 
-- Language: **繁體中文**，英文術語保留原文（T-DXd, HR, PFS, iDFS 等）
-- Every clinical claim must cite trial name + author + journal + DOI
-- Tables: use Markdown tables for comparative data (trial vs control arm)
-- Numbers: always include HR, CI, p-value when available
+- Language: **繁體中文**，英文術語保留原文（CMV, HSCT, GVHD, CRE, MIC, HR, OS, PFS 等）
+- Every clinical claim must cite trial / study name + author + journal + DOI
+- Tables: use Markdown tables for comparative data (drug vs comparator, MIC distribution, outbreak case-counts)
+- Numbers: always include HR, CI, p-value when available; for outbreaks, case-counts + CFR
 - Avoid vague superlatives; every "significant" needs a number
 
 ---
@@ -101,8 +101,8 @@ Sections without new data this week should say: `_本週無新訊號_`
 Run in order before writing:
 
 ```bash
-uv run python main.py scrape          # OncDaily + OncLive + ESMO news
-uv run python main.py journals        # JCO CrossRef (keyword pre-screened)
+uv run python main.py scrape          # CIDRAP / CID / EID / MMWR / ProMED / Puscast / ASH News
+uv run python main.py journals        # CID + Blood (CrossRef, keyword pre-screened)
 ```
 
 For full pipeline (including Twitter if credentials available):
@@ -117,8 +117,10 @@ Cached data locations:
 
 **CrossRef filtering note:** The Python fetcher applies a keyword pre-screen only (broad net).
 When writing the report, read `data/journals_cache.json` and **filter in-session** — discard any
-article whose primary topic is not breast cancer (e.g. gastroesophageal articles that share HER2).
-Only include articles confirmed breast-cancer-relevant in the `## 文獻速報` section.
+article whose primary topic falls outside ID / HSCT-related haematology (e.g. oncology articles
+that share "transplant" terminology but aren't allo-HSCT or transplant-ID relevant; non-HSCT
+solid-organ-transplant rejection trials; pure benign-haematology articles unrelated to infection).
+Only include articles confirmed ID / HSCT-haem relevant in the `## 文獻速報` section.
 
 ---
 
@@ -127,12 +129,12 @@ Only include articles confirmed breast-cancer-relevant in the `## 文獻速報` 
 Use `mcp__openevidence__oe_ask` with a prompt like:
 
 ```
-Based on the following breast cancer findings from this week, classify each as:
+Based on the following ID + Haematology (HSCT focus) findings from this week, classify each as:
 - Practice-changing (changes standard of care NOW)
 - Hypothesis-generating (promising but needs confirmation)
-- Context-dependent (changes practice for specific subgroup only)
+- Context-dependent (changes practice for specific subgroup only — e.g. high-risk CMV donor/recipient pairs, allo-HSCT only, neutropenic patients only)
 
-[list findings with trial names and key numbers]
+[list findings with trial / study names and key numbers]
 ```
 
 Extract result with: `result.extracted_answer_raw`
@@ -155,19 +157,19 @@ Before finalising, cross-check against the previous report:
 
 ```bash
 PREV=$(ls reports/ -t | head -2 | tail -1)
-# Check trial names
-grep -E "DESTINY-Breast|ASCENT|NATALEE|monarchE|VIKTORIA|EMBER|TROPION|INAVO|SERENA" reports/$PREV
-# Check HR/PFS numbers — if same numbers appear, it's a repeat
-grep -E "HR [0-9]|PFS [0-9]|iDFS [0-9]|ORR [0-9]" reports/$PREV | head -20
+# Check programme / trial / drug names
+grep -E "letermovir|maribavir|cefiderocol|sulbactam-durlobactam|isavuconazole|posaconazole|HSCT|GVHD|CMV|EBV|BK virus|Candida auris|H5N1|mpox" reports/$PREV
+# Check effect sizes — if same numbers appear, it's a repeat
+grep -E "HR [0-9]|RR [0-9]|OR [0-9]|CFR [0-9]|MIC [0-9]|95% CI" reports/$PREV | head -20
 ```
 
 Rules:
-- Same trial + same numbers → **delete the section**
-- Same trial + new data (updated follow-up, subgroup, approval) → keep with `[更新]` tag
-- Brand new trial → include normally
+- Same study + same numbers → **delete the section**
+- Same study + new data (updated follow-up, subgroup, approval) → keep with `[更新]` tag
+- Brand new study / outbreak → include normally
 
 ---
 
-## Switching to Another Cancer Type
+## Switching to Another Domain
 
-See `README.md` → "如何切換至其他癌種" for step-by-step instructions (DLBCL example included).
+See `README.md` → "切換至其他領域" for step-by-step instructions on retargeting the YAML configs.

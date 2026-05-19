@@ -138,7 +138,7 @@ def cmd_journals():
     console.print("\n[bold]Fetching journal articles via CrossRef...[/bold]")
     results = asyncio.run(crossref_fetcher.fetch_all())
     for journal, articles in results.items():
-        console.print(f"  [cyan]{journal}[/cyan]: {len(articles)} BC articles")
+        console.print(f"  [cyan]{journal}[/cyan]: {len(articles)} ID/Hema articles")
         for a in articles[:4]:
             has_abs = "✓" if a.abstract_digest else "—"
             console.print(f"    [{has_abs}] {a.title[:75]}")

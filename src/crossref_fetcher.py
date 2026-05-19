@@ -1,4 +1,4 @@
-"""Fetch recent journal articles from CrossRef API and pre-screen for oncology relevance."""
+"""Fetch recent journal articles from CrossRef API and pre-screen for ID + Haematology relevance."""
 
 import asyncio
 import re
@@ -15,21 +15,33 @@ from . import config
 SOURCE_DIR = Path(__file__).parent.parent / "source"
 JATS_TAG = re.compile(r"<[^>]+>")
 
-# Pre-screen: two-tier filter.
-# Tier 1 — unambiguous BC terms: pass immediately.
-# Tier 2 — shared biomarkers (also used in gastric/lung/etc): only pass when
-#           a Tier-1 term is also present. This blocks gastroesophageal/lung
-#           articles that mention HER2/trastuzumab/T-DXd without "breast".
-_BC_DIRECT = [
-    "breast", "mammary", "TNBC", "ESR1",
-    "ribociclib", "palbociclib", "abemaciclib",   # CDK4/6 — primarily BC
-    "imlunestrant", "elacestrant",                 # SERD — BC-only
-    "DESTINY-Breast", "NATALEE", "monarchE",       # BC trial names
-]
-_SHARED_TERMS = [
-    "HER2", "trastuzumab", "pertuzumab", "T-DXd", "Enhertu",
-    "sacituzumab", "olaparib", "talazoparib", "fulvestrant",
-    "CDK4", "CDK6", "ASCENT",
+# Pre-screen: title + abstract must contain at least one ID / Haematology term.
+# Covers AMR / MDR-GNB, antifungals, CMV / HSCT antivirals, transplant ID,
+# EID / One Health, and key trial / programme names.
+_DIRECT_TERMS = [
+    # Transplant ID & HSCT-associated infections
+    "HSCT", "stem cell transplant", "allogeneic", "autologous",
+    "GVHD", "graft-versus-host",
+    "neutropenic fever", "febrile neutropenia",
+    "CMV", "cytomegalovirus", "letermovir", "maribavir",
+    "EBV", "PTLD", "BK virus", "BK viremia",
+    "Adenovirus", "HHV-6", "VZV",
+    # Antifungals & IFD
+    "aspergillosis", "mucormycosis", "candidiasis", "candida auris",
+    "fusariosis", "pneumocystis", "invasive fungal",
+    "isavuconazole", "posaconazole", "voriconazole", "amphotericin",
+    "rezafungin", "ibrexafungerp",
+    # AMR & MDR-GNB
+    "AMR", "antimicrobial resistance", "stewardship",
+    "carbapenem", "CRE", "KPC", "NDM", "ESBL", "MRSA", "VRE",
+    "MDR", "CRAB", "Acinetobacter", "colistin",
+    "cefiderocol", "ceftazidime-avibactam", "meropenem-vaborbactam",
+    "imipenem-relebactam", "eravacycline", "sulbactam-durlobactam",
+    # EID & One Health
+    "H5N1", "H7N9", "avian influenza", "mpox", "nipah", "zoonosis",
+    "emerging infectious", "spillover",
+    # Conferences / programme names
+    "IDWeek", "ESCMID", "ECCMID", "CROI", "TCT", "ASTCT", "EBMT",
 ]
 
 
@@ -47,12 +59,12 @@ class JournalArticle:
 
 
 def _load_journals() -> list[dict]:
-    data = yaml.safe_load((SOURCE_DIR / "journals.yml").read_text())
+    data = yaml.safe_load((SOURCE_DIR / "journals.yml").read_text(encoding="utf-8"))
     return data.get("journals", [])
 
 
 def _crossref_email() -> str:
-    data = yaml.safe_load((SOURCE_DIR / "journals.yml").read_text())
+    data = yaml.safe_load((SOURCE_DIR / "journals.yml").read_text(encoding="utf-8"))
     return data.get("crossref_email", "")
 
 
@@ -83,17 +95,16 @@ def _digest_abstract(abstract: str, max_chars: int = 400) -> str:
     return " ".join(parts).strip() if parts else abstract[:max_chars]
 
 
+def _kw_pattern(kw: str) -> re.Pattern[str]:
+    return re.compile(rf"\b{re.escape(kw)}\b", re.IGNORECASE)
+
+
 def _extract_tags(text: str) -> list[str]:
-    tl = text.lower()
-    return list(dict.fromkeys(k for k in config.keywords() if k.lower() in tl))
+    return list(dict.fromkeys(k for k in config.keywords() if _kw_pattern(k).search(text)))
 
 
 def _passes_prescreen(text: str) -> bool:
-    tl = text.lower()
-    if any(t.lower() in tl for t in _BC_DIRECT):
-        return True
-    # Shared biomarkers only count when a direct BC term is also present
-    return False
+    return any(_kw_pattern(t).search(text) for t in _DIRECT_TERMS)
 
 
 def _pub_date(item: dict) -> Optional[str]:
@@ -123,7 +134,7 @@ async def _fetch_journal(
     issn = journal["issn"]
     days_back = journal.get("days_back", 14)
     max_items = journal.get("max_items", 30)
-    bc_filter = journal.get("bc_filter", True)
+    relevance_filter = journal.get("relevance_filter", True)
     from_date = (date.today() - timedelta(days=days_back)).isoformat()
 
     params = {
@@ -137,7 +148,7 @@ async def _fetch_journal(
         r = await client.get(
             "https://api.crossref.org/works",
             params=params,
-            headers={"User-Agent": f"breast-cancer-uptodate/1.0 (mailto:{email})"},
+            headers={"User-Agent": f"id-hema-uptodate/1.0 (mailto:{email})"},
             timeout=25,
         )
         r.raise_for_status()
@@ -151,7 +162,7 @@ async def _fetch_journal(
             continue
         abstract = _clean_abstract(item.get("abstract", ""))
 
-        if bc_filter and not _passes_prescreen(title + " " + abstract):
+        if relevance_filter and not _passes_prescreen(title + " " + abstract):
             continue
 
         authors_raw = item.get("author", [])

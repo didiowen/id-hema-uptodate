@@ -1,10 +1,11 @@
-"""Scrape latest breast cancer articles from configured web sources."""
+"""Scrape latest ID + Haematology articles from configured web sources."""
 
 import asyncio
 import re
 from dataclasses import dataclass, field
 from email.utils import parsedate_to_datetime
 from typing import Optional
+from urllib.parse import quote_plus
 
 import httpx
 from bs4 import BeautifulSoup
@@ -22,14 +23,16 @@ class Article:
     tags: list[str] = field(default_factory=list)
 
 
-def _is_bc_relevant(text: str) -> bool:
-    tl = text.lower()
-    return any(kw.lower() in tl for kw in config.keywords())
+def _kw_pattern(kw: str) -> re.Pattern[str]:
+    return re.compile(rf"\b{re.escape(kw)}\b", re.IGNORECASE)
+
+
+def _is_relevant(text: str) -> bool:
+    return any(_kw_pattern(kw).search(text) for kw in config.keywords())
 
 
 def _extract_tags(text: str) -> list[str]:
-    tl = text.lower()
-    return list(dict.fromkeys(kw for kw in config.keywords() if kw.lower() in tl))
+    return list(dict.fromkeys(kw for kw in config.keywords() if _kw_pattern(kw).search(text)))
 
 
 def _rfc_to_iso(rfc_date: str) -> Optional[str]:
@@ -39,7 +42,7 @@ def _rfc_to_iso(rfc_date: str) -> Optional[str]:
         return None
 
 
-def _parse_rss_items(xml_text: str, source_name: str, bc_filter: bool = True) -> list[Article]:
+def _parse_rss_items(xml_text: str, source_name: str, relevance_filter: bool = True) -> list[Article]:
     soup = BeautifulSoup(xml_text, "lxml-xml")
     articles = []
     for item in soup.find_all("item"):
@@ -66,7 +69,7 @@ def _parse_rss_items(xml_text: str, source_name: str, bc_filter: bool = True) ->
             summary = BeautifulSoup(raw, "html.parser").get_text()[:300]
 
         combined = title + " " + summary
-        if bc_filter and not _is_bc_relevant(combined):
+        if relevance_filter and not _is_relevant(combined):
             continue
 
         articles.append(Article(
@@ -88,7 +91,7 @@ async def _fetch_rss(client: httpx.AsyncClient, src: dict) -> list[Article]:
         return _parse_rss_items(
             r.text,
             src["name"],
-            bc_filter=src.get("bc_filter", True),
+            relevance_filter=src.get("relevance_filter", True),
         )
     except Exception:
         return []
@@ -99,10 +102,9 @@ async def _fetch_google_news(client: httpx.AsyncClient, src: dict) -> list[Artic
     max_items = src.get("max_items", 20)
     noise_pat = re.compile(src["noise_filter"], re.I) if src.get("noise_filter") else None
 
-    feed_url = (
-        f"https://news.google.com/rss/search"
-        f"?q=site:{domain}+breast+cancer&hl=en-US&gl=US&ceid=US:en"
-    )
+    query = src.get("query", "infectious disease OR hematology")
+    q = quote_plus(f"site:{domain} {query}")
+    feed_url = f"https://news.google.com/rss/search?q={q}&hl=en-US&gl=US&ceid=US:en"
     try:
         r = await client.get(feed_url, timeout=20)
         if r.status_code != 200:
@@ -137,7 +139,7 @@ async def _fetch_google_news(client: httpx.AsyncClient, src: dict) -> list[Artic
 
         if noise_pat and noise_pat.search(title):
             continue
-        if not _is_bc_relevant(title):
+        if not _is_relevant(title):
             continue
 
         articles.append(Article(
@@ -178,7 +180,7 @@ def format_articles_md(results: dict[str, list[Article]]) -> str:
         if not articles:
             lines.append(f"\n### {source}\n\n_本週未取得相關文章_\n")
             continue
-        lines.append(f"\n### {source}（{len(articles)} 篇乳癌相關）\n")
+        lines.append(f"\n### {source}（{len(articles)} 篇 ID／血液相關）\n")
         lines.append("| 標題 | 日期 | 關鍵詞 |")
         lines.append("|------|------|--------|")
         for a in articles[:15]:

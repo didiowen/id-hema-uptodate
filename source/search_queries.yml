@@ -1,4 +1,4 @@
-# Twitter search queries for breast cancer content
+# Twitter search queries for Infectious Disease + Haematology (HSCT focus)
 # Used by: fetcher.py
 # Each query is passed to the Twitter search API.
 # Tips:
@@ -13,3 +13,4 @@ search_queries:
   - "(One Health OR Zoonosis OR H5N1) (surveillance OR spillover)"
   - "(Aspergillosis OR Mucormycosis) (transplant OR resistance)"
   - "(IDWeek OR ESCMID) (AMR OR transplant OR EID)"
+  - "(HSCT OR allogeneic transplant) (CMV OR EBV OR BK OR GVHD)"

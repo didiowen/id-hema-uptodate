@@ -19,12 +19,18 @@ drug_groups:
     - Dalbavancin          # Dalvance
     - Oritavancin          # Orbactiv
     - Lefamulin            # Xenleta
-  CMV_Therapies:
-    - Letermovir
-    - Maribavir
+  # --- HSCT antivirals (CMV + broader post-transplant viral therapy) ---
+  HSCT_Antivirals:
+    - Letermovir            # Prevymis (CMV prophylaxis post-HSCT)
+    - Maribavir             # Livtencity (refractory/resistant CMV)
     - Valganciclovir
+    - Ganciclovir
+    - Foscarnet
+    - Cidofovir
+    - Brincidofovir
   Antifungals:
     - isavuconazole
+    - posaconazole
     - voriconazole
     - amphotericin
     - rezafungin
@@ -41,6 +47,10 @@ conference_keywords:
   - IAS
   - AST
   - EHA
+  - ASH
+  - TCT
+  - ASTCT
+  - EBMT
   - abstract
   - conference
   - congress

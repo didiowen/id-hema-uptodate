@@ -72,9 +72,9 @@ jobs:
 
           # Rebuild Home.md index (newest first)
           {
-            echo "# 乳癌治療趨勢週報"
+            echo "# 感染症 + 血液腫瘤週報"
             echo ""
-            echo "> 每週自動生成 · 資料來源：OpenEvidence、OncDaily、OncLive、ESMO、ClinicalTrials.gov"
+            echo "> 每週自動生成 · 資料來源：OpenEvidence、PubMed、CIDRAP、ProMED、EID、CDC MMWR、ClinicalTrials.gov"
             echo ""
             echo "| 週次 | 連結 |"
             echo "|------|------|"

@@ -5,15 +5,17 @@ from rich.console import Console
 
 console = Console()
 
-BC_BIO_KEYWORDS = [
-    "oncol", "breast", "cancer", "hematol", "tumor", "oncology",
+KOL_BIO_KEYWORDS = [
+    "infectious disease", "ID", "antimicrobial", "AMR",
+    "transplant", "HSCT", "BMT", "hematol", "haematol", "stem cell",
+    "epidemiolog", "public health", "microbiolog", "virolog",
     "clinical trial", "MD", "physician", "researcher",
 ]
 
 
-def _looks_like_bc_kol(bio: str) -> bool:
+def _looks_like_kol(bio: str) -> bool:
     bl = bio.lower()
-    return sum(kw in bl for kw in BC_BIO_KEYWORDS) >= 2
+    return sum(kw in bl for kw in KOL_BIO_KEYWORDS) >= 2
 
 
 def extract_mentions(tweets: list[dict]) -> list[str]:

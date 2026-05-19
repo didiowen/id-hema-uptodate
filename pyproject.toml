@@ -1,7 +1,13 @@
 [project]
-name = "breast-cancer-uptodate"
+name = "id-hema-uptodate"
 version = "0.1.0"
 requires-python = ">=3.11"
+authors = [
+    { name = "htlin222" },
+]
+maintainers = [
+    { name = "didiowen", email = "didiowen@gmail.com" },
+]
 dependencies = [
     "twscrape>=0.12.0",
     "rich>=13.0.0",

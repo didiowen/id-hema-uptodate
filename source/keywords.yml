@@ -1,4 +1,4 @@
-# TID & EID relevance keywords
+# ID + Haematology relevance keywords (HSCT-ID focus)
 # Used by: webscraper (article filtering & tagging), fetcher (tweet classification)
 # Add / remove terms here to tune what gets captured.
 
@@ -15,7 +15,26 @@ tid_eid_amr_keywords:
   - Candidiasis
   - Fusariosis
   - Pneumocystis
-  
+
+  # HSCT & associated viral / opportunistic infections
+  - HSCT
+  - Allogeneic stem cell transplant
+  - Autologous stem cell transplant
+  - GVHD
+  - Graft-versus-host disease
+  - Neutropenic fever
+  - Febrile neutropenia
+  - EBV
+  - PTLD
+  - Post-transplant lymphoproliferative
+  - BK virus
+  - BK viremia
+  - Adenovirus
+  - HHV-6
+  - VZV reactivation
+  - Posaconazole
+  - Isavuconazole prophylaxis
+
   # AMR (Antimicrobial Resistance)
   - AMR
   - Carbapenem-resistance

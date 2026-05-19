@@ -47,7 +47,7 @@ def build_report(days: int = 7) -> str:
     lines = []
     lines.append(f"# ID Twitter Trend Report — {week_label}")
     lines.append(f"\n> Generated {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')} | "
-                 f"{len(tweets)} BC-relevant tweets | {len(accounts)} tracked accounts\n")
+                 f"{len(tweets)} ID/Hema-relevant tweets | {len(accounts)} tracked accounts\n")
 
     lines.append("## Overview\n")
     lines.append("### Trending Topics by Volume\n")
@@ -59,7 +59,7 @@ def build_report(days: int = 7) -> str:
 
     lines.append("")
     lines.append("### Most Active KOLs This Week\n")
-    lines.append("| Handle | BC Tweets |")
+    lines.append("| Handle | Tweets |")
     lines.append("|--------|-----------|")
     for auth, cnt in author_counts.most_common(10):
         lines.append(f"| @{auth} | {cnt} |")
